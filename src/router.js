@@ -1,0 +1,19 @@
+import React from "react";
+import { Router, Route, Switch } from "dva/router";
+import IndexPage from "./routes/IndexPage";
+import Products from "./routes/Products";
+import Face from "./routes/Face";
+
+function RouterConfig({ history }) {
+  return (
+    <Router history={history}>
+      <Switch>
+        <Route path="/" exact component={IndexPage} />
+        <Route path="/products" exact component={Products} />
+        <Route path="/face" exact component={Face} />
+      </Switch>
+    </Router>
+  );
+}
+
+export default RouterConfig;

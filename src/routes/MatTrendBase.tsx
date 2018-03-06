@@ -672,7 +672,6 @@ class MatTrendBase extends React.Component<MatTrendProps, MatTrendState> {
 
     return (
       <div>
-        {'看未来'}
         <MonthPicker
           format={monthFormat}
           value={moment(selectedMonth, monthFormat)}

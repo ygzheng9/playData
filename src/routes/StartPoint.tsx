@@ -6,6 +6,7 @@ import { Breadcrumb, Icon, Layout, Menu, Tabs } from 'antd';
 import { ClickParam } from 'antd/lib/menu';
 
 import MatAmtCluster from './MatAmtCluster';
+import MatDie from './MatDie';
 import MatNew from './MatNew';
 import MatPriceVar from './MatPriceVar';
 import MatTrendLeft from './MatTrendLeft';
@@ -24,7 +25,8 @@ const AllPages = {
   matTrendLeft: MatTrendLeft,
   matTrendRight: MatTrendRight,
   matPriceVar: MatPriceVar,
-  matNew: MatNew
+  matNew: MatNew,
+  matDie: MatDie
 };
 
 // TopNav 顶部导航栏
@@ -206,7 +208,8 @@ class StartPoint extends React.Component<{}, StartPointState> {
                 <Menu.Item key="matTrendLeft">物料延续性(L)</Menu.Item>
                 <Menu.Item key="matTrendRight">物料延续性(R)</Menu.Item>
                 <Menu.Item key="matPriceVar">采购价格波动</Menu.Item>
-                <Menu.Item key="matNew">新物料趋势</Menu.Item>
+                <Menu.Item key="matNew">物料开发分析</Menu.Item>
+                <Menu.Item key="matDie">物料消亡分析</Menu.Item>
               </SubMenu>
               <SubMenu
                 key="sub2"

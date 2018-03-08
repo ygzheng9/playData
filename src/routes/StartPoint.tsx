@@ -5,9 +5,10 @@ import { Breadcrumb, Icon, Layout, Menu, Tabs } from 'antd';
 // tslint:disable-next-line:no-submodule-imports
 import { ClickParam } from 'antd/lib/menu';
 
+import BomComponent from './BOMComponent';
 import MatAmtCluster from './MatAmtCluster';
-import MatDie from './MatDie';
-import MatNew from './MatNew';
+import MatNew from './MatNewDieLeft';
+import MatDie from './MatNewDieRight';
 import MatPriceVar from './MatPriceVar';
 import MatTrendLeft from './MatTrendLeft';
 import MatTrendRight from './MatTrendRight';
@@ -26,7 +27,8 @@ const AllPages = {
   matTrendRight: MatTrendRight,
   matPriceVar: MatPriceVar,
   matNew: MatNew,
-  matDie: MatDie
+  matDie: MatDie,
+  bomComp: BomComponent
 };
 
 // TopNav 顶部导航栏
@@ -166,20 +168,24 @@ class StartPoint extends React.Component<{}, StartPointState> {
       onClick: this.toggle
     };
 
+    const topBar = (
+      <Header>
+        <div className="logo" />
+        <Menu
+          theme="dark"
+          mode="horizontal"
+          defaultSelectedKeys={['2']}
+          style={{ lineHeight: '64px' }}
+        >
+          <Menu.Item key="1">nav 1</Menu.Item>
+          <Menu.Item key="2">nav 2</Menu.Item>
+        </Menu>
+      </Header>
+    );
+
     return (
       <Layout>
-        <Header>
-          <div className="logo" />
-          <Menu
-            theme="dark"
-            mode="horizontal"
-            defaultSelectedKeys={['2']}
-            style={{ lineHeight: '64px' }}
-          >
-            <Menu.Item key="1">nav 1</Menu.Item>
-            <Menu.Item key="2">nav 2</Menu.Item>
-          </Menu>
-        </Header>
+        {true ? '' : topBar}
         <Layout>
           <Sider
             width={200}
@@ -200,7 +206,7 @@ class StartPoint extends React.Component<{}, StartPointState> {
                 title={
                   <span>
                     <Icon type="user" />
-                    <span>支出分析</span>
+                    <span>全局观</span>
                   </span>
                 }
               >
@@ -210,6 +216,7 @@ class StartPoint extends React.Component<{}, StartPointState> {
                 <Menu.Item key="matPriceVar">采购价格波动</Menu.Item>
                 <Menu.Item key="matNew">物料开发分析</Menu.Item>
                 <Menu.Item key="matDie">物料消亡分析</Menu.Item>
+                <Menu.Item key="bomComp">组件复用度</Menu.Item>
               </SubMenu>
               <SubMenu
                 key="sub2"

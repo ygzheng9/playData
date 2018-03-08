@@ -171,3 +171,17 @@ export interface CellDetailType {
   amt: number;
   amtPect: number;
 }
+
+// 单层 BOM 信息: 子件 - 母件
+export interface BOMComp {
+  childInv: string;
+  childName: string;
+  parentInv: string;
+  parentName: string;
+}
+
+// 单层 BOM 信息：增加了 子件 对应的所有不同 母件 的数量
+export interface BOMComp2 extends BOMComp {
+  parentCnt: number;
+  parentList: BOMComp[];
+}

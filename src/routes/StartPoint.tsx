@@ -6,6 +6,7 @@ import { Breadcrumb, Icon, Layout, Menu, Tabs } from 'antd';
 import { ClickParam } from 'antd/lib/menu';
 
 import BomComponent from './BOMComponent';
+import BOMSimilar from './BOMSimilar';
 import MatAmtCluster from './MatAmtCluster';
 import MatNew from './MatNewDieLeft';
 import MatDie from './MatNewDieRight';
@@ -28,7 +29,8 @@ const AllPages = {
   matPriceVar: MatPriceVar,
   matNew: MatNew,
   matDie: MatDie,
-  bomComp: BomComponent
+  bomComp: BomComponent,
+  bomSimilar: BOMSimilar
 };
 
 // TopNav 顶部导航栏
@@ -153,7 +155,7 @@ class StartPoint extends React.Component<{}, StartPointState> {
 
     // 关闭的是 当前页面，所以，需要计算下一个页面；
     // 如果关闭的不是 当前页面，那么 当前页面 保持不变
-    if (activeKey === targetKey) {
+    if (panes.length > 0 && activeKey === targetKey) {
       activeKey = panes[lastIndex].key;
     }
 
@@ -197,7 +199,7 @@ class StartPoint extends React.Component<{}, StartPointState> {
             <Menu
               mode="inline"
               defaultSelectedKeys={['1']}
-              defaultOpenKeys={['sub1']}
+              defaultOpenKeys={['sub1', 'sub2']}
               style={{ height: '100%', borderRight: 0 }}
               onClick={this.onClickMenu}
             >
@@ -206,27 +208,27 @@ class StartPoint extends React.Component<{}, StartPointState> {
                 title={
                   <span>
                     <Icon type="user" />
-                    <span>全局观</span>
+                    <span>采购分析</span>
                   </span>
                 }
               >
-                <Menu.Item key="matAmtCluster">采购集中度</Menu.Item>
-                <Menu.Item key="matTrendLeft">物料延续性(L)</Menu.Item>
-                <Menu.Item key="matTrendRight">物料延续性(R)</Menu.Item>
-                <Menu.Item key="matPriceVar">采购价格波动</Menu.Item>
+                <Menu.Item key="matAmtCluster">采购集中度分析</Menu.Item>
+                <Menu.Item key="matTrendLeft">物料延续性分析(L)</Menu.Item>
+                <Menu.Item key="matTrendRight">物料延续性分析(R)</Menu.Item>
+                <Menu.Item key="matPriceVar">采购价格波动分析</Menu.Item>
                 <Menu.Item key="matNew">物料开发分析</Menu.Item>
                 <Menu.Item key="matDie">物料消亡分析</Menu.Item>
-                <Menu.Item key="bomComp">组件复用度</Menu.Item>
               </SubMenu>
               <SubMenu
                 key="sub2"
                 title={
                   <span>
-                    <Icon type="laptop" /> <span>subnav 2</span>
+                    <Icon type="laptop" /> <span>BOM分析</span>
                   </span>
                 }
               >
-                <Menu.Item key="5">option5</Menu.Item>
+                <Menu.Item key="bomComp">组件复用度分析</Menu.Item>
+                <Menu.Item key="bomSimilar">BOM相似度分析</Menu.Item>
               </SubMenu>
             </Menu>
           </Sider>

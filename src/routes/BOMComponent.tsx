@@ -13,7 +13,7 @@ import chartUtils from '../utils/chartUtils';
 const { chartColors, round } = chartUtils;
 
 import rawDataSvc, { BOMCompData } from '../services/rawData';
-import { BOMComp, BOMComp2 } from './MatType';
+import { BOMComp, BOMComp2, InvRelation } from './MatType';
 
 interface CompReuseProps {
   items: InvRelation[];
@@ -28,7 +28,7 @@ const CompReuse = ({ items, onSelectGrade }: CompReuseProps) => {
   // 数据中有的 grade
   const avlGrade = R.uniq(items.map(i => i.grade));
   // 每个 grade 中的数量
-  const byGrade: GradeInfo[] = avlGrade.map(g => {
+  const byGrade = avlGrade.map(g => {
     const list = items.filter(w => w.grade === g);
     const count = list === undefined ? 0 : list.length;
     return {
@@ -37,9 +37,38 @@ const CompReuse = ({ items, onSelectGrade }: CompReuseProps) => {
     };
   });
 
+  // 升序排序：1,2,3,4
+  const sorted = byGrade.sort((a, b) => a.grade - b.grade);
+  // 计算总数
+  const total = R.sum(sorted.map(s => s.count));
+  // 计算当前占比
+  const accCnt = sorted.map(s => ({
+    ...s,
+    accCount: 0
+  }));
+
+  // 计算累计数量；
+  accCnt.forEach((v, idx) => {
+    if (idx === 0) {
+      // 第一个累计等于当前;
+      accCnt[idx].accCount = accCnt[0].count;
+    } else {
+      // 当前累计值 = 前一个累计值 + 当前值
+      const prev = idx - 1;
+      accCnt[idx].accCount = accCnt[prev].accCount + accCnt[idx].count;
+    }
+  });
+
+  // 根据数量，计算占比
+  const accPect: GradeInfo[] = accCnt.map(i => ({
+    ...i,
+    pect: round(100 * i.count / total),
+    accPect: round(100 * i.accCount / total)
+  }));
+
   // 准备参数
   const gradeProps: GradeTableProps = {
-    items: byGrade.sort((a, b) => a.grade - b.grade),
+    items: accPect,
     onSelectGrade
   };
 
@@ -59,6 +88,12 @@ const CompReuse = ({ items, onSelectGrade }: CompReuseProps) => {
 interface GradeInfo {
   grade: number;
   count: number;
+  // 累计数据
+  accCount: number;
+  // 当前比例
+  pect: number;
+  // 累计比例
+  accPect: number;
 }
 
 interface GradeTableProps {
@@ -75,16 +110,28 @@ function GradeTable({ items, onSelectGrade }: GradeTableProps) {
       title: '复用次数',
       dataIndex: 'grade',
       key: 'grade',
-      width: 100
+      width: 50
     },
     {
       title: '子件数量',
       dataIndex: 'count',
       key: 'count',
-      width: 200,
+      width: 100,
       render: (text, record) => (
         <a onClick={onSelectGrade(record.grade)}>{text} </a>
       )
+    },
+    {
+      title: '占比',
+      dataIndex: 'pect',
+      key: 'pect',
+      width: 100
+    },
+    {
+      title: '累计占比',
+      dataIndex: 'accPect',
+      key: 'accPect',
+      width: 100
     }
   ];
 
@@ -214,12 +261,12 @@ function GradeDetail({
   ];
 
   // tslint:disable-next-line:max-classes-per-file
-  class ItemTable extends Table<GradeInfo> {}
+  // class ItemTable extends Table<GradeInfo> {}
   const msg = `复用 ${grade} 次的子件清单：`;
   const childTag = (
     <div>
       <b>{msg}</b>
-      <ItemTable
+      <Table
         size="small"
         dataSource={items}
         columns={columns}
@@ -415,18 +462,6 @@ class CompentList extends React.Component<
 
     return result;
   }
-}
-
-// 组件复用性能分析：一个物料，是多少个不同  BOM 的子件
-interface InvRelation {
-  invCode: string;
-  // invCode 的直接上级，或直接下级；
-  relations: BOMComp[];
-
-  // relations 的长度
-  count: number;
-  // 对应的 grade
-  grade: number;
 }
 
 interface BOMComponentState {

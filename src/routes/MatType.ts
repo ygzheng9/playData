@@ -185,3 +185,29 @@ export interface BOMComp2 extends BOMComp {
   parentCnt: number;
   parentList: BOMComp[];
 }
+
+// 组件复用性能分析：一个物料，是多少个不同  BOM 的子件，或：一个母件，下面有多少子件
+export interface InvRelation {
+  invCode: string;
+  // invCode 的直接上级，或直接下级；
+  relations: BOMComp[];
+
+  // relations 的长度
+  count: number;
+  // 对应的 grade
+  grade: number;
+}
+
+// 物料基本信息
+export interface MatInfo {
+  invCode: string;
+  invName: string;
+  invStd: string;
+  isPurchase: number;
+  isSelfMade: number;
+  isProxy: number;
+  moQ: number;
+  leadTime: number;
+  fileName: string;
+  version: string;
+}

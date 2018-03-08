@@ -1,6 +1,12 @@
 import request from '../utils/request';
 
-import { BOMComp, MatMonthInfo, POItem, PoItemParam } from '../routes/MatType';
+import {
+  BOMComp,
+  MatInfo,
+  MatMonthInfo,
+  POItem,
+  PoItemParam
+} from '../routes/MatType';
 
 // api 返回结构
 export interface POItemsData {
@@ -20,11 +26,20 @@ export interface MatByMonthData {
   };
 }
 
-// api: 返回结果
+// api: 返回结果，单层 BOM
 export interface BOMCompData {
   data: {
     rtnCode: number;
     items?: BOMComp[];
+    message?: string;
+  };
+}
+
+// api: 返回结果，物料基本信息
+export interface MatInfoData {
+  data: {
+    rtnCode: number;
+    items?: MatInfo[];
     message?: string;
   };
 }
@@ -50,5 +65,10 @@ export default {
   // 加载单层 BOM 信息
   getBomComponent: (): Promise<BOMCompData> => {
     return request('/api/bomComponent');
+  },
+
+  // 加载物料基本信息
+  getMatInfo: (): Promise<MatInfoData> => {
+    return request('/api/loadMatInfo');
   }
 };

@@ -131,7 +131,7 @@ interface BOMSimilarState {
   items: BOMComp[];
 
   // 物料基本信息
-  invList: MatInfo[];
+  matInfoList: MatInfo[];
 
   // 分层后的物料
   levelList: MatLevelType[];
@@ -150,7 +150,7 @@ class BOMSimilar extends React.Component<{}, BOMSimilarState> {
       isLoading: false,
 
       items: [] as BOMComp[],
-      invList: [] as MatInfo[],
+      matInfoList: [] as MatInfo[],
 
       levelList: [] as MatLevelType[],
       selectedLevel: '',
@@ -207,7 +207,7 @@ class BOMSimilar extends React.Component<{}, BOMSimilarState> {
     this.setState({
       isLoading: false,
       items: data.items,
-      invList: data2.items,
+      matInfoList: data2.items,
       levelList: levels,
       childMap,
       selectedLevel: ''
@@ -269,7 +269,13 @@ class BOMSimilar extends React.Component<{}, BOMSimilarState> {
   }
 
   public render() {
-    const { isLoading, levelList, selectedLevel, childMap } = this.state;
+    const {
+      isLoading,
+      levelList,
+      selectedLevel,
+      childMap,
+      matInfoList
+    } = this.state;
 
     const levelPros: ShowLevelProps = {
       items: levelList,
@@ -281,7 +287,8 @@ class BOMSimilar extends React.Component<{}, BOMSimilarState> {
     const byLevelProps = {
       level: selectedLevel,
       invList,
-      childMap
+      childMap,
+      matInfoList
     };
 
     return (

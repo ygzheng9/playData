@@ -2,128 +2,28 @@ import * as R from 'ramda';
 
 import * as React from 'react';
 
-import { Button, Col, message, Row, Spin, Table } from 'antd';
-// tslint:disable-next-line:no-submodule-imports
-import { ColumnProps } from 'antd/lib/table';
-
-import * as chartjs from 'chart.js';
-import { ChartData, Pie } from 'react-chartjs-2';
-
-import chartUtils from '../utils/chartUtils';
-
-const { chartColorsArr, round } = chartUtils;
+import { Button, message, Spin } from 'antd';
 
 import rawDataSvc, { BOMCompData, MatInfoData } from '../services/rawData';
+
 import { BOMComp, InvRelation, MatInfo } from './MatType';
 
-import MatByLevel from '../components/bom/MatLevel';
+import { MatLevelType } from '../components/BOMSimilar/types';
+
+import LevelSummary, {
+  LevelSummaryProps
+} from '../components/BOMSimilar/LevelSummary';
+
+import LevelGrade, {
+  LevelGradeProps
+} from '../components/BOMSimilar/LevelGrade';
 
 // BOM 相似度分析
-// 按照 BOM 层级进行分组：顶层 BOM，中间层 BOM，底层 BOM；
-
-// 各层的物料：顶层 H，中间层 M，底层 L
-interface MatLevelType {
-  level: 'H' | 'M' | 'L';
-  title: string;
-  invList: string[];
-}
-
-// 显示各个层级的料号数量：饼图 + 表格
-interface ShowLevelProps {
-  items: MatLevelType[];
-  onSelectLevel: (level: string) => () => void;
-}
-function ShowLevel({ items, onSelectLevel }: ShowLevelProps) {
-  if (items.length === 0) {
-    return <div />;
-  }
-
-  // 增加两个属性
-  interface MatLevelTypeEx extends MatLevelType {
-    // invList.length
-    count: number;
-    // count / totalCount
-    pect: number;
-  }
-
-  // 计算 单个数量
-  const cnt = items.map(i => ({ ...i, count: i.invList.length }));
-
-  // 计算 总数量
-  const total = R.sum(cnt.map(i => i.count));
-  // 计算占比
-  const mapped: MatLevelTypeEx[] = cnt.map(i => ({
-    ...i,
-    pect: round(100 * i.invList.length / total)
-  }));
-
-  // 饼图 + 表格
-  // pie 参数
-  const chartData: ChartData<chartjs.ChartData> = {
-    labels: mapped.map(i => i.title),
-    datasets: [
-      {
-        data: mapped.map(i => i.count),
-        backgroundColor: mapped.map((_, idx) => chartColorsArr[idx % 7])
-      }
-    ]
-  };
-  const chartOptions: chartjs.ChartOptions = {
-    title: {
-      display: true,
-      text: '组件结构分析'
-    },
-    responsive: true
-  };
-
-  const columns: Array<ColumnProps<MatLevelTypeEx>> = [
-    {
-      title: '层级',
-      dataIndex: 'level',
-      key: 'level'
-    },
-    {
-      title: '描述',
-      dataIndex: 'title',
-      key: 'title'
-    },
-    {
-      title: '数量',
-      dataIndex: 'count',
-      key: 'count',
-      render: (text, record) =>
-        record.level === 'L' ? (
-          <span> {text} </span>
-        ) : (
-          <a onClick={onSelectLevel(record.level)}>{text}</a>
-        )
-    },
-    {
-      title: '占比',
-      dataIndex: 'pect',
-      key: 'pect'
-    }
-  ];
-
-  // tslint:disable-next-line:max-classes-per-file
-  class LevelTable extends Table<MatLevelTypeEx> {}
-
-  return (
-    <Row>
-      <Col span={12}>
-        <Pie data={chartData} options={chartOptions} />
-      </Col>
-      <Col span={12}>
-        <LevelTable
-          dataSource={mapped}
-          columns={columns}
-          rowKey="level"
-          pagination={false}
-        />
-      </Col>
-    </Row>
-  );
-}
+// 1. 按照物料在 BOM 中的层级，分组：顶层组件，中间层组件，底层组件，饼图 + 表格 展示；
+// 2. 选中某一级后，按照相关组件数量，分组显示（相关组件：两个组件有共用的子件，则相关）；
+// 3. 选中某一个相关数量级别后，显示该级别内的 组件清单，以及相关组件数量；
+// 4. 选中某一个组件，显示该组件的相关组件列表，以及相同子件数量；
+// 5. 选中一个相关组件，显示两个组件的共用料清单，以及各自组件的专用料清单；
 
 interface BOMSimilarState {
   isLoading: boolean;
@@ -141,7 +41,6 @@ interface BOMSimilarState {
   // 物料的直接下级
   childMap: InvRelation[];
 }
-// tslint:disable-next-line:max-classes-per-file
 class BOMSimilar extends React.Component<{}, BOMSimilarState> {
   constructor(props: {}) {
     super(props);
@@ -277,14 +176,14 @@ class BOMSimilar extends React.Component<{}, BOMSimilarState> {
       matInfoList
     } = this.state;
 
-    const levelPros: ShowLevelProps = {
+    const levelSummaryPros: LevelSummaryProps = {
       items: levelList,
       onSelectLevel: this.onSelectLevel
     };
 
     const invList = this.getInvByLevel(levelList, selectedLevel);
 
-    const byLevelProps = {
+    const levelGradeProps: LevelGradeProps = {
       level: selectedLevel,
       invList,
       childMap,
@@ -295,8 +194,8 @@ class BOMSimilar extends React.Component<{}, BOMSimilarState> {
       <div>
         <Button onClick={this.onRefresh}> 刷新 </Button>
         <Spin spinning={isLoading} />
-        <ShowLevel {...levelPros} />
-        {selectedLevel === '' ? '' : <MatByLevel {...byLevelProps} />}
+        <LevelSummary {...levelSummaryPros} />
+        {selectedLevel === '' ? '' : <LevelGrade {...levelGradeProps} />}
       </div>
     );
   }

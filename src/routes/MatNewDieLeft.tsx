@@ -1,5 +1,5 @@
 import * as React from 'react';
-import MatNewDieBase from './MatNewDieBase';
+import { MatNewDieBase } from '../components/MatNewDie';
 
 // 新物料开发分析
 const MatNew = () => {

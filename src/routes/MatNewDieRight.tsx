@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import MatNewDieBase from './MatNewDieBase';
+import { MatNewDieBase } from '../components/MatNewDie';
 
 // 物料消亡分析
 const MatDie = () => {

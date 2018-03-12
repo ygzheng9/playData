@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import MatTrendBase from './MatTrendBase';
+import { MatTrendBase } from '../components/MatTrend';
 
 // 查询月 和 未来月份 比对
 const MatTrendRight = () => {

@@ -3,381 +3,30 @@ import * as R from 'ramda';
 
 import * as React from 'react';
 
-import { Button, Col, DatePicker, message, Row, Spin, Table } from 'antd';
-// tslint:disable-next-line:no-submodule-imports
-// import { ColumnProps } from 'antd/lib/table';
+import { Button, DatePicker, message, Spin } from 'antd';
 
-import { Bar } from 'react-chartjs-2';
-
-import rawDataSvc, { MatByMonthData } from '../services/rawData';
-import chartUtils from '../utils/chartUtils';
 import {
   CellDetailType,
   MatMonthInfo,
   MonthNewMat,
   NewMatInfo
-} from './MatType';
+} from '../../routes/MatType';
+
+import rawDataSvc, { MatByMonthData } from '../../services/rawData';
+import chartUtils from '../../utils/chartUtils';
 
 const { MonthPicker } = DatePicker;
-const { chartColors, round, dateFormat, monthFormat } = chartUtils;
+const { round, dateFormat, monthFormat } = chartUtils;
 
-const RowHeadMat = '料号';
+import { RowHeadMat } from './types';
+
+import BaseOverview, { BaseOverviewProps } from './BaseOverview';
+
+import BaseDetails, { BaseDetailsProps } from './BaseDetails';
 
 // 如果一颗料，在接下来 12 个月没有购买过，那么称为 物料消亡；
 // 物料消亡比例 = 消亡物料的料号数量 / 基准月料号的数量
 // 查看 未来 12 个月内，物料消亡 的占比趋势；
-
-// 显示基准月的金额与料号
-interface ShowBaseMonthsProps {
-  direction: 'L' | 'R';
-  baseMonthList: MonthNewMat[];
-  clickCell: (month: string, rowHead: string) => () => void;
-}
-const ShowBaseMonths = ({
-  direction,
-  baseMonthList,
-  clickCell
-}: ShowBaseMonthsProps) => {
-  if (baseMonthList.length === 0) {
-    return <div />;
-  }
-
-  // 对 baseMonthList 做数据透视
-  // 行、列：都是固定的；
-  // 行：料号，金额，偏移量1-12；
-  // 列：基准月列表；
-
-  // 先定义每行的取数逻辑
-  interface RowType {
-    title: string;
-    // 该行的取数逻辑
-    fn: (i: MonthNewMat) => number;
-  }
-
-  // 取出指定偏移量的新物料信息
-  const getOffset = (offset: number) => (i: MonthNewMat): number => {
-    const exist = i.newList.find(n => n.offset === offset);
-    if (exist === undefined) {
-      return 0;
-    }
-    return exist.newPect;
-  };
-
-  // 一共有 12 个偏移量，每个偏移量一行
-  const offsetRows = R.range(1, 13).map(offset => {
-    const itm: RowType = {
-      title: `${offset}`,
-      fn: getOffset(offset)
-    };
-    return itm;
-  });
-
-  // 除了偏移量外，还有两行；料号，金额
-  const rows = [
-    { title: RowHeadMat, fn: (i: MonthNewMat) => i.totalCnt },
-    // { title: '金额', fn: (i: MonthNewMat) => i.totalAmt },
-    ...offsetRows
-  ];
-
-  // 取出所有的基准月,作为列
-  const baseMonths = baseMonthList.map(b => b.bizMonth);
-
-  // 根据行、列，取出每个单元格信息
-  // 每一行
-  const pivotData = rows.map(r => {
-    // 每一列
-    const list = baseMonths.map(month => {
-      let value = 0;
-      const monthInfo = baseMonthList.find(i => i.bizMonth === month);
-      if (monthInfo !== undefined) {
-        value = r.fn(monthInfo);
-      }
-      return {
-        bizMonth: month,
-        value
-      };
-    });
-
-    // 把 [{}, {}] 变成一个 {}，原因：table 的每一行，是一个对象，不同的 key；
-    const row = list.reduce(
-      (acc, curr) => {
-        // 为 acc 增加属性
-        acc[curr.bizMonth] = curr.value;
-        return acc;
-      },
-      { rowHead: r.title }
-    );
-
-    return row;
-  });
-
-  // 分两部分显示: 上部分：图；下部分：表格
-  // 上部分：图：左边轴：料号数量；右边：新物料比例；显示 12，9，6,3 四条曲线
-  // 下部分：设置表格参数
-  const title = direction === 'L' ? '物料开发分析' : '物料消亡分析';
-
-  const tblProps = {
-    title,
-    baseMonths,
-    pivotData,
-    clickCell
-  };
-
-  return (
-    <div>
-      <Row>
-        <Col>
-          <DrawChart {...tblProps} />
-        </Col>
-      </Row>
-
-      <Row>
-        <Col>
-          <DrawTable {...tblProps} />
-        </Col>
-      </Row>
-    </div>
-  );
-};
-
-// 按照表格显示明细数据
-interface DataProps {
-  title: string;
-  baseMonths: string[];
-  pivotData: any[];
-  clickCell: (month: string, rowHead: string) => () => void;
-}
-function DrawTable({ title, baseMonths, pivotData, clickCell }: DataProps) {
-  // table 需要的列定义
-  const baseMonthCols = baseMonths.map(month => ({
-    title: month,
-    dataIndex: month,
-    key: month,
-    render: (text: number, record: any) => {
-      return <a onClick={clickCell(month, record.rowHead)}> {text} </a>;
-    }
-  }));
-
-  // 加上第一列
-  const columns = [
-    {
-      title: '#',
-      dataIndex: 'rowHead',
-      key: 'rowHead'
-    },
-    ...baseMonthCols
-  ];
-
-  return (
-    <Table
-      size="middle"
-      dataSource={pivotData}
-      columns={columns}
-      rowKey="rowHead"
-      scroll={{ y: 300 }}
-      pagination={false}
-    />
-  );
-}
-
-// 图
-function DrawChart({ title, baseMonths, pivotData }: DataProps) {
-  // pivotData 中每一元素，都是一个 object，不同的 key 对应不同的值；
-
-  // 取得某一行的信息
-  const getRow = (rowHead: string): number[] => {
-    // 根据行头，取出对应行；
-    const exist = pivotData.find(p => p.rowHead === rowHead);
-    if (exist === undefined) {
-      return [] as number[];
-    }
-
-    // 把 {} 变成 []
-    // 月份 是 {} 中的 key
-    const results = baseMonths.map(month => exist[month]);
-    return results;
-  };
-
-  // 图表参数
-  const chartData = {
-    labels: baseMonths.map(i => i),
-    datasets: [
-      {
-        type: 'line',
-        label: '累计12个月',
-        borderColor: chartColors.red,
-        backgroundColor: chartColors.red,
-        data: getRow('12'),
-        yAxisID: 'y-axis-pect',
-        fill: false
-      },
-      {
-        type: 'line',
-        label: '累计9个月',
-        borderColor: chartColors.green,
-        backgroundColor: chartColors.green,
-        borderWidth: 2,
-        data: getRow('9'),
-        yAxisID: 'y-axis-pect',
-        fill: false
-      },
-
-      {
-        type: 'line',
-        label: '累计6个月',
-        borderColor: chartColors.orange,
-        backgroundColor: chartColors.orange,
-        borderWidth: 2,
-        data: getRow('6'),
-        yAxisID: 'y-axis-pect',
-        fill: false
-      },
-      {
-        type: 'line',
-        label: '累计3个月',
-        borderColor: chartColors.blue,
-        backgroundColor: chartColors.blue,
-        borderWidth: 2,
-        data: getRow('3'),
-        yAxisID: 'y-axis-pect',
-        fill: false
-      },
-      {
-        type: 'bar',
-        label: '料号数量',
-        borderColor: chartColors.grey,
-        backgroundColor: chartColors.grey,
-        borderWidth: 2,
-        data: getRow(RowHeadMat),
-        yAxisID: 'y-axis-cnt',
-        fill: false
-      }
-    ]
-  };
-  const chartOptions = {
-    title: {
-      display: true,
-      text: `${title}`
-    },
-    tooltips: {
-      mode: 'index',
-      intersect: false
-    },
-    responsive: true,
-    scales: {
-      xAxes: [
-        {
-          display: true,
-          scaleLabel: {
-            display: true,
-            labelString: '采购月份'
-          },
-          ticks: {
-            display: true
-          }
-        }
-      ],
-      yAxes: [
-        {
-          type: 'linear',
-          display: true,
-          position: 'left',
-          id: 'y-axis-cnt',
-          scaleLabel: {
-            display: true,
-            labelString: '料号数'
-          }
-        },
-        {
-          type: 'linear',
-          display: true,
-          position: 'right',
-          id: 'y-axis-pect',
-          scaleLabel: {
-            display: true,
-            labelString: '新料号%'
-          }
-        }
-      ]
-    }
-  };
-  return (
-    <Bar data={chartData} options={chartOptions} width={600} height={300} />
-  );
-}
-
-// 选中单元格后，显示单元格的明细
-interface ShowDetailsProps {
-  // 对应当前点击的单元格信息
-  clickedMonth: string;
-  clickedHead: string;
-  clickedDetails: CellDetailType[];
-}
-function ShowDetails({
-  clickedMonth,
-  clickedHead,
-  clickedDetails
-}: ShowDetailsProps) {
-  if (clickedDetails.length === 0) {
-    return <div />;
-  }
-
-  const tblData = clickedDetails.map((i, idx) => ({ ...i, seqNo: idx + 1 }));
-
-  const columns = [
-    {
-      title: '#',
-      dataIndex: 'seqNo',
-      key: 'seqNo',
-      width: 100
-    },
-    {
-      title: '月份',
-      dataIndex: 'bizMonth',
-      key: 'bizMonth',
-      width: 200
-    },
-    {
-      title: '料号',
-      dataIndex: 'invCode',
-      key: 'invCode',
-      width: 200
-    },
-    {
-      title: '采购量',
-      dataIndex: 'qty',
-      key: 'qty',
-      width: 200
-    },
-    {
-      title: '采购金额',
-      dataIndex: 'amt',
-      key: 'amt',
-      width: 200
-    }
-    // {
-    //   title: '金额占比',
-    //   dataIndex: 'amtPect',
-    //   key: 'amtPect'
-    // }
-  ];
-
-  const msg = `${clickedMonth} - ${clickedHead}`;
-
-  return (
-    <div>
-      {msg}
-      <Table
-        size="middle"
-        dataSource={tblData}
-        columns={columns}
-        rowKey="invCode"
-        scroll={{ y: 300 }}
-        pagination={{ pageSize: 500 }}
-      />
-    </div>
-  );
-}
 
 // 基准月的物料，在历史 n 个月内没有购买过（比如：12个月，9个月），则成为新物料；
 // 同理，在未来 n 个月没有购买过(比如：12个月， 9个月)，则称为物料消亡；
@@ -385,15 +34,15 @@ function ShowDetails({
 // R: 向未来看（时间轴向右看）
 
 // 有两个分析维度：
-// 一、同一个基准月，看不同 n 下的趋势；比如：未来 6 个月没有购买过的物料，12 个月没有购买过的物料；
+// 一、同一个基准月 Base，看不同 n 下的趋势；比如：未来 6 个月没有购买过的物料，12 个月没有购买过的物料；
 // 二、n 相同，基准月不同；比如：都是看未来12个月没有购买的物料，比对：2016-1 到 2016-12 连续12个月是否有下降趋势；
 
-interface MatNewProps {
+export interface MatNewDieProps {
   direction: 'L' | 'R';
 }
 
 // MatNew: 连续 12 个月，新物料的占比趋势；
-interface MatNewState {
+interface MatNewDieState {
   isLoading: boolean;
 
   // 界面选中的月份；
@@ -409,8 +58,8 @@ interface MatNewState {
 }
 
 // tslint:disable-next-line:max-classes-per-file
-class MatNewDieBase extends React.Component<MatNewProps, MatNewState> {
-  constructor(props: MatNewProps) {
+class MatNewDieBase extends React.Component<MatNewDieProps, MatNewDieState> {
+  constructor(props: MatNewDieProps) {
     super(props);
 
     this.state = {
@@ -667,13 +316,13 @@ class MatNewDieBase extends React.Component<MatNewProps, MatNewState> {
 
     const { direction } = this.props;
 
-    const baseProps: ShowBaseMonthsProps = {
+    const baseProps: BaseOverviewProps = {
       direction,
       baseMonthList,
       clickCell: this.clickCell
     };
 
-    const detailProps: ShowDetailsProps = {
+    const detailProps: BaseDetailsProps = {
       clickedMonth,
       clickedHead,
       clickedDetails
@@ -688,8 +337,8 @@ class MatNewDieBase extends React.Component<MatNewProps, MatNewState> {
         />
         <Button onClick={this.onRefresh}> 查询 </Button>
         <Spin spinning={isLoading} />
-        <ShowBaseMonths {...baseProps} />
-        <ShowDetails {...detailProps} />
+        <BaseOverview {...baseProps} />
+        <BaseDetails {...detailProps} />
       </div>
     );
   }

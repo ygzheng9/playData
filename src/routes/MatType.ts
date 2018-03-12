@@ -126,20 +126,6 @@ export interface MonthSummary {
   repeatCntPect: number;
 }
 
-// HistoryItem 某个料号在某个月，数量，金额
-export interface HistoryItem {
-  bizMonth: string;
-  quantity: number;
-  amount: number;
-}
-
-// HistoryDetail 某料，最近金额，每个月的数量，金额
-export interface HistoryDetail {
-  invCode: string;
-  items: HistoryItem[];
-  latestAmt: number;
-}
-
 // MonthNewMat 当前月份，总金额，料号，重复的金额，料号
 export interface MonthNewMat {
   bizMonth: string;

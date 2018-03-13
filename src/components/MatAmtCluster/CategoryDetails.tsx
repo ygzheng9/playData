@@ -10,12 +10,11 @@ import { MatGrpExpand } from './types';
 
 const { round } = chartUtils;
 
-// 选中了某个级别后，显示该级别下的具体明细信息
+// 选中了某个级别后，显示该级别下的具体明细信息（料号，采购金额，采购数量，采购次数）
 export interface CategoryDetailsProps {
   items: MatGrpExpand[];
   onSelectMat: (s: string) => () => void;
 }
-
 function CategoryDetails({ items, onSelectMat }: CategoryDetailsProps) {
   const remains = items.map((i, idx) => ({
     ...i,

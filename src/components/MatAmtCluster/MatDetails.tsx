@@ -13,12 +13,13 @@ import { POItem, VendorGrp } from './types';
 
 const { chartColors, chartColorsArr, round } = chartUtils;
 
-// 某一个选定的料号：供应商占比分析，采购订单单价/数量 趋势；
+// 某一个选定的料号：供应商占比分析，采购订单单价/数量 趋势，采购订单列表；
 
+// 饼图：供应商占比
 // 选中一颗料后 ，显示该物料不同供应商的金额占比
 // 如果只有一个供应商，则不显示；
 // items: 采购订单行项目，是按照料号过滤后的结果
-function MatVendorPect({ items }: MatDetailsProps) {
+function MatByVendor({ items }: MatDetailsProps) {
   if (items === undefined) {
     return <div />;
   }
@@ -117,6 +118,7 @@ function MatVendorPect({ items }: MatDetailsProps) {
   return byVendor.length > 1 ? pieTag : <div />;
 }
 
+// 时序图：采购价格，采购数量
 // 选中一颗料后，显示该物料的采购历史趋势，订单号，单价，数量；
 // 两个轴：左边 单价；右边 数量；
 function MatPriceTrend({ items }: MatDetailsProps) {
@@ -254,7 +256,6 @@ function MatPriceTrend({ items }: MatDetailsProps) {
 export interface MatDetailsProps {
   items: POItem[] | undefined;
 }
-
 function MatDetails({ items }: MatDetailsProps) {
   if (items === undefined) {
     return <div />;
@@ -275,7 +276,7 @@ function MatDetails({ items }: MatDetailsProps) {
 
   return (
     <div>
-      <MatVendorPect {...props} />
+      <MatByVendor {...props} />
       <MatPriceTrend {...props} />
     </div>
   );

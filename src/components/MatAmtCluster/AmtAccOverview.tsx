@@ -9,12 +9,12 @@ import * as chartjs from 'chart.js';
 import { ChartData, Line } from 'react-chartjs-2';
 
 import chartUtils from '../../utils/chartUtils';
+import { LabelInfo, MatGrpExpand } from './types';
 
 const { chartColors, round } = chartUtils;
 
-import { LabelInfo, MatGrpExpand } from './types';
-
 // 采购金额集中度分析
+// 料号，按金额从大到小排序，显示累计百分比 + 每  10% 中料号数量
 // items: 每个物料的采购金额，按照金额从大到小排序，累计占比有标记
 export interface AmtAccOverviewProps {
   items: MatGrpExpand[];

@@ -23,7 +23,8 @@ import {
 } from '../components/MatAmtCluster';
 
 // 采购金额集中度分析
-
+// 按照料号采购金额，从高到低排序，显示累计金额百分比；
+// 按表格显示每 10% 采购金额，对应的料号数
 interface MatAmtClusterState {
   isLoading: boolean;
   poItems: POItem[];

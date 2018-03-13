@@ -7,9 +7,9 @@ import { ColumnProps } from 'antd/lib/table';
 import * as chartjs from 'chart.js';
 import { ChartData, Line, Pie } from 'react-chartjs-2';
 
-import chartUtils from '../utils/chartUtils';
+import chartUtils from '../../utils/chartUtils';
 
-import { POItem, VendorGrp } from './MatType';
+import { POItem, VendorGrp } from './types';
 
 const { chartColors, chartColorsArr, round } = chartUtils;
 

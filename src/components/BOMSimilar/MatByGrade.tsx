@@ -7,9 +7,7 @@ import { Col, Row, Table } from 'antd';
 // tslint:disable-next-line:no-submodule-imports
 import { ColumnProps } from 'antd/lib/table';
 
-import { MatInfo } from '../../routes/MatType';
-
-import { BOMIntersection, BOMOverlap, OneLevel } from './types';
+import { BOMIntersection, BOMOverlap, MatInfo, OneLevel } from './types';
 
 import CompareDiff, { CompareDiffProps } from './CompareDiff';
 

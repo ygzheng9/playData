@@ -1,218 +1,32 @@
 import * as React from 'react';
 
-import { Button, Col, DatePicker, message, Row, Spin, Table } from 'antd';
-// tslint:disable-next-line:no-submodule-imports
-import { ColumnProps } from 'antd/lib/table';
-
-import * as chartjs from 'chart.js';
-import { Bar, ChartData } from 'react-chartjs-2';
+import { Button, DatePicker, message, Spin } from 'antd';
 
 import * as moment from 'moment';
 
-import MatDetails, { MatDetailsProps } from './MatDetails';
-
 import rawDataSvc, { POItemsData } from '../services/rawData';
 import chartUtils from '../utils/chartUtils';
-import { MatPriceInfo, POItem, VarCat } from './MatType';
+
+import {
+  MatPriceInfo,
+  VarBreakDetails,
+  VarBreakDetailsProps,
+  VarCat,
+  VarHist,
+  VarHistProps
+} from '../components/MatPriceVar';
+
+import {
+  MatDetails,
+  MatDetailsProps,
+  POItem
+} from '../components/MatAmtCluster';
 
 const { RangePicker } = DatePicker;
-const { chartColors, round, dateFormat } = chartUtils;
+const { round, dateFormat } = chartUtils;
 
 // 分析查询期间内，最高价格、最低价格 的 变动百分比
 // 对 变动百分比 进行分组，下钻到 每个分组内 料号数量、金额；再下钻到 具体的物料
-
-////////////////////////
-// 按照 价格波动档次 显示
-interface DrawVarianceProps {
-  items: VarCat[];
-  onVarCatChange: (x: number) => () => void;
-}
-function DrawVariance({ items, onVarCatChange }: DrawVarianceProps) {
-  // 计算数量占比，总数量
-  const ttl = items.reduce((acc, curr) => {
-    acc += curr.count;
-    return acc;
-  }, 0);
-
-  const cntPect = items.map(i => ({
-    ...i,
-    countPect: round(i.count / ttl * 100)
-  }));
-
-  // 过滤掉变化很小的记录
-  const ignore = 0.5;
-  const remains = cntPect.filter(i => Math.abs(i.varCat) > ignore);
-
-  // 图表参数
-  const chartData: ChartData<chartjs.ChartData> = {
-    labels: remains.map(i => `${i.varCat}`),
-    datasets: [
-      {
-        type: 'bar',
-        label: '料号数量',
-        backgroundColor: chartColors.red,
-        data: remains.map(
-          i => (i.varCat > 0 ? round(i.count) : -1 * round(i.count))
-        ),
-        yAxisID: 'y-axis-count'
-      }
-    ]
-  };
-  const chartOptions: chartjs.ChartOptions = {
-    title: {
-      display: true,
-      text: '价格波动分析'
-    },
-    tooltips: {
-      mode: 'index',
-      intersect: false
-    },
-    responsive: true,
-    scales: {
-      xAxes: [
-        {
-          display: true,
-          scaleLabel: {
-            display: true,
-            labelString: '波动'
-          },
-          ticks: {
-            display: true
-          }
-        }
-      ],
-      yAxes: [
-        {
-          type: 'linear',
-          display: true,
-          position: 'left',
-          id: 'y-axis-count',
-          scaleLabel: {
-            display: true,
-            labelString: '料号数量'
-          }
-        }
-      ]
-    }
-  };
-  const chartTag = (
-    <Bar data={chartData} options={chartOptions} width={600} height={300} />
-  );
-
-  const columns: Array<ColumnProps<VarCat>> = [
-    {
-      title: '波动',
-      dataIndex: 'varCat',
-      key: 'varCat'
-    },
-    {
-      title: '料号数',
-      dataIndex: 'count',
-      key: 'count',
-      render: (text, record) => (
-        <a onClick={onVarCatChange(record.varCat)}>{text}</a>
-      )
-    },
-    {
-      title: '料号数%',
-      dataIndex: 'countPect',
-      key: 'countPect'
-    }
-  ];
-  // tslint:disable-next-line:max-classes-per-file
-  class CatTable extends Table<VarCat> {}
-  const tblTag = (
-    <CatTable
-      size="small"
-      dataSource={remains}
-      columns={columns}
-      rowKey="varCat"
-      scroll={{ y: 400 }}
-      pagination={false}
-    />
-  );
-
-  return (
-    <Row>
-      <Col span={16}>{chartTag}</Col>
-      <Col span={8}> {tblTag}</Col>
-    </Row>
-  );
-}
-
-// 显示某个档次内的物料详情
-interface VarCatDetailsProps {
-  items: MatPriceInfo[] | undefined;
-  varCat: number;
-  onMatChange: (inv: string) => () => void;
-}
-function VarCatDetails({ items, varCat, onMatChange }: VarCatDetailsProps) {
-  if (items === undefined) {
-    return <div>{`${varCat} 无数据`}</div>;
-  }
-
-  // 有涨价，有降价
-  const remains = items.sort((a, b) => (b.varPect - a.varPect) * varCat);
-
-  const columns: Array<ColumnProps<MatPriceInfo>> = [
-    {
-      title: '料号',
-      dataIndex: 'invCode',
-      key: 'invCode',
-      render: (text, record) => (
-        <a onClick={onMatChange(record.invCode)}>{text}</a>
-      )
-    },
-    {
-      title: '波动',
-      dataIndex: 'varPect',
-      key: 'varPect'
-    },
-    {
-      title: '最低价',
-      dataIndex: 'minPrice',
-      key: 'minPrice'
-    },
-    {
-      title: '最低价时间',
-      dataIndex: 'minDate',
-      key: 'minDate'
-    },
-    {
-      title: '最低价订单',
-      dataIndex: 'minPO',
-      key: 'minPO'
-    },
-    {
-      title: '最高价',
-      dataIndex: 'maxPrice',
-      key: 'maxPrice'
-    },
-    {
-      title: '最高价时间',
-      dataIndex: 'maxDate',
-      key: 'maxDate'
-    },
-    {
-      title: '最高价订单',
-      dataIndex: 'maxPO',
-      key: 'maxPO'
-    }
-  ];
-  // tslint:disable-next-line:max-classes-per-file
-  class DetailTable extends Table<MatPriceInfo> {}
-
-  return (
-    <DetailTable
-      size="middle"
-      dataSource={remains}
-      columns={columns}
-      rowKey={record => record.invCode}
-      scroll={{ y: 300 }}
-      pagination={{ pageSize: 30 }}
-    />
-  );
-}
 
 // MatPriceVar: 本月采购的物料中，有多少是12个月内重复采购的；这些重复采购的，占当月的金额比例多少等；
 interface MatPriceVarState {
@@ -468,13 +282,13 @@ class MatPriceVar extends React.Component<{}, MatPriceVarState> {
     } = this.state;
 
     // 按波动档次显示
-    const varProps: DrawVarianceProps = {
+    const varProps: VarHistProps = {
       items: byVarCat,
       onVarCatChange: this.onVarCatChange
     };
 
     // 某个档次内的详情
-    const dtlProps: VarCatDetailsProps = {
+    const dtlProps: VarBreakDetailsProps = {
       varCat: selectedCat,
       items: byMat.filter(i => i.varCat === selectedCat),
       onMatChange: this.onMatChange
@@ -493,8 +307,8 @@ class MatPriceVar extends React.Component<{}, MatPriceVarState> {
         />
         <Button onClick={this.onRefresh}> 查询 </Button>
         <Spin spinning={isLoading} />
-        {items.length > 0 ? <DrawVariance {...varProps} /> : ''}
-        {selectedCat !== 0 ? <VarCatDetails {...dtlProps} /> : ''}
+        {items.length > 0 ? <VarHist {...varProps} /> : ''}
+        {selectedCat !== 0 ? <VarBreakDetails {...dtlProps} /> : ''}
         {selectedMat !== '' ? <MatDetails {...matProps} /> : ''}
       </div>
     );

@@ -4,7 +4,7 @@ import * as moment from 'moment';
 
 import { Button, DatePicker, message, Spin } from 'antd';
 
-import { MonthSummary } from '../../routes/MatType';
+import { MonthSummary } from '../MatAmtCluster';
 import { MonthlyDetails } from './types';
 
 import rawDataSvc, { MatByMonthData } from '../../services/rawData';
@@ -176,7 +176,7 @@ class MatTrendBase extends React.Component<
         const totalCnt = oneMonth.map(d => d.invCode).reduce(
           (acc, curr) => {
             // distinct invCode
-            const exist = acc.find(a => a === curr);
+            const exist = acc.find((a: string) => a === curr);
             if (exist === undefined) {
               acc.push(curr);
             }

@@ -6,7 +6,7 @@ import { Col, Row, Table } from 'antd';
 // tslint:disable-next-line:no-submodule-imports
 import { ColumnProps } from 'antd/lib/table';
 
-import { BOMComp, InvRelation } from '../../routes/MatType';
+import { BOMComp, InvRelation } from './types';
 
 // 按照复用度显示的直方图，选中 某一个级别 后，显示该级别下的 料号清单（料号，复用次数）
 // 在 料号清单 中选中 一颗料，显示 使用这颗料的所有母件 清单；

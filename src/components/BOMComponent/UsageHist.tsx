@@ -6,11 +6,9 @@ import { Col, Row } from 'antd';
 
 import chartUtils from '../../utils/chartUtils';
 
-import { InvRelation } from '../../routes/MatType';
-
 import HistChart from './HistChart';
 import HistTable from './HistTable';
-import { HistInfo, HistProps } from './types';
+import { HistInfo, HistProps, InvRelation } from './types';
 
 const { round } = chartUtils;
 

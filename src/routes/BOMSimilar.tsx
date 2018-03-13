@@ -6,17 +6,16 @@ import { Button, message, Spin } from 'antd';
 
 import rawDataSvc, { BOMCompData, MatInfoData } from '../services/rawData';
 
-import { BOMComp, InvRelation, MatInfo } from './MatType';
+import { BOMComp, InvRelation } from '../components/BOMComponent';
 
-import { MatLevelType } from '../components/BOMSimilar/types';
-
-import LevelSummary, {
-  LevelSummaryProps
-} from '../components/BOMSimilar/LevelSummary';
-
-import LevelGrade, {
-  LevelGradeProps
-} from '../components/BOMSimilar/LevelGrade';
+import {
+  LevelGrade,
+  LevelGradeProps,
+  LevelSummary,
+  LevelSummaryProps,
+  MatInfo,
+  MatLevelType
+} from '../components/BOMSimilar';
 
 // BOM 相似度分析
 // 1. 按照物料在 BOM 中的层级，分组：顶层组件，中间层组件，底层组件，饼图 + 表格 展示；

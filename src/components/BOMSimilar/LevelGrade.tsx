@@ -4,9 +4,9 @@ import * as React from 'react';
 
 import { Spin } from 'antd';
 
-import { InvRelation, MatInfo } from '../../routes/MatType';
+import { InvRelation } from '../BOMComponent';
 
-import { BOMIntersection, BOMOverlap, OneLevel } from './types';
+import { BOMIntersection, BOMOverlap, MatInfo, OneLevel } from './types';
 
 import MatByGrade, { MatByGradeProps } from './MatByGrade';
 import OverlapByGrade, { OverlapByGradeProps } from './OverlapByGrade';

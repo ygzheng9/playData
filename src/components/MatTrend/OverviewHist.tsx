@@ -6,7 +6,8 @@ import { ColumnProps } from 'antd/lib/table';
 
 import { Bar } from 'react-chartjs-2';
 
-import { MonthSummary } from '../../routes/MatType';
+import { MonthSummary } from '../MatAmtCluster';
+
 import chartUtils from '../../utils/chartUtils';
 
 const { chartColors, round } = chartUtils;

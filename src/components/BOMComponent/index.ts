@@ -1,4 +1,4 @@
-import { HistInfo, HistProps } from './types';
+import { BOMComp, BOMComp2, HistInfo, HistProps, InvRelation } from './types';
 
 import UsageHist, { UsageHistProps } from './UsageHist';
 
@@ -14,5 +14,8 @@ export {
   GradeDetails,
   GradeDetailsProps,
   ComponentList,
-  ComponentListProps
+  ComponentListProps,
+  InvRelation,
+  BOMComp,
+  BOMComp2
 };

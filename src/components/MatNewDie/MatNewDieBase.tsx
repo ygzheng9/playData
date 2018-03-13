@@ -5,20 +5,15 @@ import * as React from 'react';
 
 import { Button, DatePicker, message, Spin } from 'antd';
 
-import {
-  CellDetailType,
-  MatMonthInfo,
-  MonthNewMat,
-  NewMatInfo
-} from '../../routes/MatType';
-
 import rawDataSvc, { MatByMonthData } from '../../services/rawData';
 import chartUtils from '../../utils/chartUtils';
 
 const { MonthPicker } = DatePicker;
 const { round, dateFormat, monthFormat } = chartUtils;
 
-import { RowHeadMat } from './types';
+import { MatMonthInfo } from '../MatAmtCluster';
+
+import { CellDetailType, MonthNewMat, NewMatInfo, RowHeadMat } from './types';
 
 import BaseOverview, { BaseOverviewProps } from './BaseOverview';
 

@@ -25,3 +25,17 @@ export interface MatLevelType {
   title: string;
   invList: string[];
 }
+
+// 物料基本信息
+export interface MatInfo {
+  invCode: string;
+  invName: string;
+  invStd: string;
+  isPurchase: number;
+  isSelfMade: number;
+  isProxy: number;
+  moQ: number;
+  leadTime: number;
+  fileName: string;
+  version: string;
+}

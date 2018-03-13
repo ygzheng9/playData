@@ -4,9 +4,7 @@ import * as React from 'react';
 
 import { Col, Row, Table } from 'antd';
 
-import { MatInfo } from '../../routes/MatType';
-
-import { BOMIntersection, OneLevel } from './types';
+import { BOMIntersection, MatInfo, OneLevel } from './types';
 
 // 显示两个组件共用的子件，以及每个组件独有的子件
 export interface CompareDiffProps {

@@ -5,13 +5,15 @@ import * as React from 'react';
 import { Button, message, Spin } from 'antd';
 
 import rawDataSvc, { BOMCompData } from '../services/rawData';
-import { BOMComp, BOMComp2, InvRelation } from './MatType';
 
 import {
+  BOMComp,
+  BOMComp2,
   ComponentList,
   ComponentListProps,
   GradeDetails,
   GradeDetailsProps,
+  InvRelation,
   UsageHist,
   UsageHistProps
 } from '../components/BOMComponent';

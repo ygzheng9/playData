@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Bar } from 'react-chartjs-2';
 
-import { MonthSummary } from '../../routes/MatType';
+import { MonthSummary } from '../MatAmtCluster';
 
 import chartUtils from '../../utils/chartUtils';
 

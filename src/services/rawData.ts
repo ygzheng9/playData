@@ -1,12 +1,8 @@
 import request from '../utils/request';
 
-import {
-  BOMComp,
-  MatInfo,
-  MatMonthInfo,
-  POItem,
-  PoItemParam
-} from '../routes/MatType';
+import { BOMComp } from '../components/BOMComponent';
+import { MatInfo } from '../components/BOMSimilar';
+import { MatMonthInfo, POItem, PoItemParam } from '../components/MatAmtCluster';
 
 // api 返回结构
 export interface POItemsData {

@@ -4,9 +4,7 @@ import * as React from 'react';
 
 import { Col, Row } from 'antd';
 
-import { MonthNewMat } from '../../routes/MatType';
-
-import { BaseProps, RowHeadMat } from './types';
+import { BaseProps, MonthNewMat, RowHeadMat } from './types';
 
 import BaseChart from './BaseChart';
 import BaseTable from './BaseTable';

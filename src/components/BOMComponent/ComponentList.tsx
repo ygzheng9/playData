@@ -6,7 +6,7 @@ import { Col, Row, Table } from 'antd';
 // tslint:disable-next-line:no-submodule-imports
 import { ColumnProps } from 'antd/lib/table';
 
-import { BOMComp, BOMComp2 } from '../../routes/MatType';
+import { BOMComp, BOMComp2 } from './types';
 
 // 选中 一个母件 后，显示 该母件 的直接下级子件清单
 // 显示单层 BOM：母件，子件，子件共用度
